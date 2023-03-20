@@ -24,5 +24,5 @@ type Subject interface {
 	// keeping track of its balance changes. The UpdateBalance method of all registered observers should be called with
 	// a text representation of the new balance. tview's DynamicColors are enabled
 	// (e.g."[green]420.1337[white] Ada").
-	NotifyAllBalance()
+	NotifyAllBalance(bal int64)
 }
