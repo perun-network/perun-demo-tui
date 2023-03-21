@@ -10,14 +10,14 @@ import (
 type View struct {
 	id              uuid.UUID
 	Client          client.DemoClient
-	Pages           *tview.Pages
+	pages           *tview.Pages
 	partyAndBalance *tview.TextView
 	onStateUpdate   func(string)
 	updateLock      sync.Mutex
 }
 
-var Left = newView()
-var Right = newView()
+var Left *View
+var Right *View
 
 func newView() *View {
 	return &View{

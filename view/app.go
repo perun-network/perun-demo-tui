@@ -72,6 +72,8 @@ func RunDemo(title string, clients []client.DemoClient) error {
 	if err := initApp(clients); err != nil {
 		return err
 	}
+	Left = newView()
+	Right = newView()
 	setControls()
 	App.left = initColumn(Left, "Party A")
 	App.right = initColumn(Right, "Party B")
