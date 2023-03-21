@@ -19,6 +19,7 @@ const (
 
 func initColumn(view *View, party string) *tview.Pages {
 	pages := tview.NewPages()
+	view.pages = pages
 	pages.SetFocusFunc(func() {
 		_, frontPage := pages.GetFrontPage()
 		App.TUI.SetFocus(frontPage)
@@ -37,7 +38,7 @@ func setClientAndSwitchToPartyMenuPage(client client.DemoClient, view *View) fun
 	return func() {
 		view.SetClient(client)
 		log.Println("Switching to PartyMenuPage")
-		view.Pages.SwitchToPage(PartyMenuPage)
+		view.pages.SwitchToPage(PartyMenuPage)
 	}
 }
 
@@ -69,17 +70,17 @@ func newPartyMenuPage(view *View) tview.Primitive {
 
 	list := tview.NewList().SetSelectedFocusOnly(true)
 	list.AddItem("Open Channel", "Open a new Channel with another party", 'o', func() {
-		view.Pages.SwitchToPage(OpenChannelPage)
+		view.pages.SwitchToPage(OpenChannelPage)
 	})
 	list.AddItem("View Channels", "View open channel", 'v', func() {
-		view.Pages.SwitchToPage(DisplayChannelPage)
+		view.pages.SwitchToPage(DisplayChannelPage)
 	})
 	content.AddItem(list, 0, 1, true)
 
 	content.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case 'r':
-			view.Pages.SwitchToPage(PartySelectionPage)
+			view.pages.SwitchToPage(PartySelectionPage)
 		}
 		return event
 	})
@@ -101,7 +102,7 @@ func newDisplayChannelPage(view *View) (tview.Primitive, func(string)) {
 	content.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case 'r':
-			view.Pages.SwitchToPage(PartyMenuPage)
+			view.pages.SwitchToPage(PartyMenuPage)
 		}
 		return event
 	})
@@ -183,17 +184,17 @@ func newOpenChannelPage(view *View) tview.Primitive {
 				peerIndex, _ := peerField.GetCurrentOption()
 				peer := clientSelection[peerIndex]
 				go view.Client.OpenChannel(peer.WireAddress(), deposit)
-				view.Pages.SwitchToPage(DisplayChannelPage)
+				view.pages.SwitchToPage(DisplayChannelPage)
 			}).
 			AddButton("Cancel", func() {
-				view.Pages.SwitchToPage(PartyMenuPage)
+				view.pages.SwitchToPage(PartyMenuPage)
 			})
 		App.TUI.SetFocus(form)
 	})
 	content.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case 'r':
-			view.Pages.SwitchToPage(PartyMenuPage)
+			view.pages.SwitchToPage(PartyMenuPage)
 		}
 		return event
 	})
