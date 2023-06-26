@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"perun.network/perun-demo-tui/asset"
 	"perun.network/perun-demo-tui/client"
 	"time"
 )
@@ -68,15 +69,15 @@ func setupLayout(title string) {
 	App.TUI.SetRoot(flex, true).EnableMouse(true)
 }
 
-func RunDemo(title string, clients []client.DemoClient) error {
+func RunDemo(title string, clients []client.DemoClient, assets []asset.TUIAsset) error {
 	if err := initApp(clients); err != nil {
 		return err
 	}
 	Left = newView()
 	Right = newView()
 	setControls()
-	App.left = initColumn(Left, "Party A")
-	App.right = initColumn(Right, "Party B")
+	App.left = initColumn(Left, "Party A", assets)
+	App.right = initColumn(Right, "Party B", assets)
 	setupLayout(title)
 	return App.TUI.Run()
 }
