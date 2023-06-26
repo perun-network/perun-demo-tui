@@ -1,8 +1,8 @@
 package client
 
 import (
+	"perun.network/go-perun/channel"
 	"perun.network/go-perun/wire"
-	"perun.network/perun-demo-tui/asset"
 )
 
 type DemoClient interface {
@@ -22,12 +22,12 @@ type DemoClient interface {
 	// Note: The Demo currently also does not include any visualization of
 	// proposals. One option is to have the peer deposit the same amount of funds and implement the ProposalHandler
 	// accordingly.
-	OpenChannel(address wire.Address, amount map[asset.TUIAsset]float64)
+	OpenChannel(address wire.Address, amount map[channel.Asset]float64)
 
 	// SendPaymentToPeer should send a payment to the peer of the client in the client's currently open channel.
 	// Note: For now we assume that the client only has one open channel.
 	// TODO: Move this functionality into a `Channel` interface.
-	SendPaymentToPeer(amounts map[asset.TUIAsset]float64)
+	SendPaymentToPeer(amounts map[channel.Asset]float64)
 
 	// Settle should settle the client's currently open channel.
 	// Note: For now we assume that the client only has one open channel.
@@ -38,5 +38,5 @@ type DemoClient interface {
 	HasOpenChannel() bool
 
 	// GetOpenChannelAssets returns the assets of the client's currently open channel.
-	GetOpenChannelAssets() []asset.TUIAsset
+	GetOpenChannelAssets() []channel.Asset
 }

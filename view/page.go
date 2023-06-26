@@ -5,7 +5,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"log"
-	"perun.network/perun-demo-tui/asset"
+	"perun.network/go-perun/channel"
 	"perun.network/perun-demo-tui/client"
 	"strconv"
 	"time"
@@ -18,7 +18,7 @@ const (
 	DisplayChannelPage = "DisplayChannelPage"
 )
 
-func initColumn(view *View, party string, assets []asset.TUIAsset) *tview.Pages {
+func initColumn(view *View, party string) *tview.Pages {
 	pages := tview.NewPages()
 	view.pages = pages
 	pages.SetFocusFunc(func() {
@@ -30,7 +30,7 @@ func initColumn(view *View, party string, assets []asset.TUIAsset) *tview.Pages 
 	displayChannelPage, channelUpdateHandler := newDisplayChannelPage(view)
 	view.onStateUpdate = channelUpdateHandler
 	pages.AddPage(DisplayChannelPage, displayChannelPage, true, false)
-	pages.AddPage(OpenChannelPage, newOpenChannelPage(view, assets), true, false)
+	pages.AddPage(OpenChannelPage, newOpenChannelPage(view), true, false)
 	pages.SwitchToPage(PartySelectionPage)
 	return pages
 }
@@ -116,12 +116,12 @@ func newDisplayChannelPage(view *View) (tview.Primitive, func(string)) {
 		assets := view.Client.GetOpenChannelAssets()
 		sendFields := make([]*tview.InputField, len(assets))
 		for i, a := range assets {
-			sendFields[i] = tview.NewInputField().SetLabel(fmt.Sprintf("Send %s", a.Name)).SetFieldWidth(20).SetText("")
+			sendFields[i] = tview.NewInputField().SetLabel(fmt.Sprintf("Send %s", App.Mapping.GetName(a))).SetFieldWidth(20).SetText("")
 			sendForm.AddFormItem(sendFields[i])
 		}
 		sendForm.AddFormItem(sendField).
 			AddButton("Send", func() {
-				amounts := make(map[asset.TUIAsset]float64, len(assets))
+				amounts := make(map[channel.Asset]float64, len(assets))
 				for i, f := range sendFields {
 					amount, err := strconv.ParseFloat(f.GetText(), 64)
 					if err != nil {
@@ -133,7 +133,7 @@ func newDisplayChannelPage(view *View) (tview.Primitive, func(string)) {
 			}).
 			AddFormItem(microPaymentAmount).AddFormItem(microPaymentRepetitions).
 			AddButton("Send Micro Payment", func() {
-				amounts := make(map[asset.TUIAsset]float64, len(assets))
+				amounts := make(map[channel.Asset]float64, len(assets))
 				for i, f := range sendFields {
 					amount, err := strconv.ParseFloat(f.GetText(), 64)
 					if err != nil {
@@ -170,7 +170,7 @@ func newDisplayChannelPage(view *View) (tview.Primitive, func(string)) {
 	}
 }
 
-func newOpenChannelPage(view *View, assets []asset.TUIAsset) tview.Primitive {
+func newOpenChannelPage(view *View) tview.Primitive {
 	content := tview.NewFlex().SetDirection(tview.FlexRow)
 	content.AddItem(view.partyAndBalance, 2, 0, false)
 	content.AddItem(tview.NewTextView().SetTextAlign(tview.AlignCenter).SetText("Open Channel"), 2, 0, false)
@@ -190,16 +190,17 @@ func newOpenChannelPage(view *View, assets []asset.TUIAsset) tview.Primitive {
 			i++
 		}
 		peerField := tview.NewDropDown().SetLabel("Party").SetOptions(clientNames, nil).SetCurrentOption(0)
+		assets := App.Mapping.GetAllAssets()
 		depositFields := make([]*tview.InputField, len(assets))
 		for i, a := range assets {
-			depositFields[i] = tview.NewInputField().SetLabel(fmt.Sprintf("Deposit %s", a.Name)).SetFieldWidth(20).SetText("")
+			depositFields[i] = tview.NewInputField().SetLabel(fmt.Sprintf("Deposit %s", App.Mapping.GetName(a))).SetFieldWidth(20).SetText("")
 		}
 		*form = *tview.NewForm().AddFormItem(peerField)
 		for _, f := range depositFields {
 			form.AddFormItem(f)
 		}
 		form.AddButton("Open Channel", func() {
-			depositMap := make(map[asset.TUIAsset]float64)
+			depositMap := make(map[channel.Asset]float64)
 			for k, f := range depositFields {
 				if f.GetText() == "" {
 					continue

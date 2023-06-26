@@ -14,6 +14,7 @@ const MaxClients = 8
 
 type app struct {
 	TUI               *tview.Application
+	Mapping           asset.Register
 	Clients           []client.DemoClient
 	MicroPaymentDelay time.Duration
 	left              *tview.Pages
@@ -22,7 +23,7 @@ type app struct {
 
 var App *app
 
-func initApp(clients []client.DemoClient) error {
+func initApp(clients []client.DemoClient, mapping asset.Register) error {
 	if App != nil {
 		return errors.New("app already initialized")
 	}
@@ -33,6 +34,7 @@ func initApp(clients []client.DemoClient) error {
 		TUI:               tview.NewApplication(),
 		Clients:           clients,
 		MicroPaymentDelay: 50 * time.Millisecond,
+		Mapping:           mapping,
 	}
 	return nil
 }
@@ -69,15 +71,15 @@ func setupLayout(title string) {
 	App.TUI.SetRoot(flex, true).EnableMouse(true)
 }
 
-func RunDemo(title string, clients []client.DemoClient, assets []asset.TUIAsset) error {
-	if err := initApp(clients); err != nil {
+func RunDemo(title string, clients []client.DemoClient, mapping asset.Register) error {
+	if err := initApp(clients, mapping); err != nil {
 		return err
 	}
 	Left = newView()
 	Right = newView()
 	setControls()
-	App.left = initColumn(Left, "Party A", assets)
-	App.right = initColumn(Right, "Party B", assets)
+	App.left = initColumn(Left, "Party A")
+	App.right = initColumn(Right, "Party B")
 	setupLayout(title)
 	return App.TUI.Run()
 }
