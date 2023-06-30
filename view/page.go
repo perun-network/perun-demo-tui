@@ -109,8 +109,6 @@ func newDisplayChannelPage(view *View) (tview.Primitive, func(string)) {
 	})
 	content.AddItem(sendForm, 0, 1, false)
 	setForm := func() {
-		sendField := tview.NewInputField().SetLabel("Send Payment").SetFieldWidth(20).SetText("")
-		microPaymentAmount := tview.NewInputField().SetLabel("Micro Payment Amount").SetFieldWidth(20).SetText("")
 		microPaymentRepetitions := tview.NewInputField().SetLabel("Repetitions").SetFieldWidth(20).SetText("")
 		*sendForm = *tview.NewForm()
 		assets := view.Client.GetOpenChannelAssets()
@@ -119,19 +117,18 @@ func newDisplayChannelPage(view *View) (tview.Primitive, func(string)) {
 			sendFields[i] = tview.NewInputField().SetLabel(fmt.Sprintf("Send %s", App.Mapping.GetName(a))).SetFieldWidth(20).SetText("")
 			sendForm.AddFormItem(sendFields[i])
 		}
-		sendForm.AddFormItem(sendField).
-			AddButton("Send", func() {
-				amounts := make(map[channel.Asset]float64, len(assets))
-				for i, f := range sendFields {
-					amount, err := strconv.ParseFloat(f.GetText(), 64)
-					if err != nil {
-						return
-					}
-					amounts[assets[i]] = amount
+		sendForm.AddButton("Send", func() {
+			amounts := make(map[channel.Asset]float64, len(assets))
+			for i, f := range sendFields {
+				amount, err := strconv.ParseFloat(f.GetText(), 64)
+				if err != nil {
+					return
 				}
-				go view.Client.SendPaymentToPeer(amounts)
-			}).
-			AddFormItem(microPaymentAmount).AddFormItem(microPaymentRepetitions).
+				amounts[assets[i]] = amount
+			}
+			go view.Client.SendPaymentToPeer(amounts)
+		}).
+			AddFormItem(microPaymentRepetitions).
 			AddButton("Send Micro Payment", func() {
 				amounts := make(map[channel.Asset]float64, len(assets))
 				for i, f := range sendFields {
